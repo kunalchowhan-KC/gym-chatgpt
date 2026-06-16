@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routine — Daily Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#6b7d4f">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Load file banner (shown on first visit / no file loaded) -->
+<div class="load-banner" id="load-banner">
+  <div class="load-banner-inner">
+    <p class="load-banner-title">📂 Load your data file</p>
+    <p class="load-banner-sub">Select your <strong>routine-data.json</strong> file to restore your data. First time? Skip to start fresh.</p>
+    <div class="load-banner-actions">
+      <button class="btn btn-primary" id="load-file-btn">Load file</button>
+      <button class="btn" id="load-skip-btn">Start fresh</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="load-file-input" accept="application/json" hidden>
+
+<div class="app">
+
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark">◆</span>
+      <span class="brand-name">Routine</span>
+    </div>
+    <button class="install-btn" id="installBtn" type="button" onclick="promptInstall()" hidden>Install App</button>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="today" role="tab" aria-selected="true">Today</button>
+      <button class="tab" data-tab="routine" role="tab" aria-selected="false">Routine</button>
+      <button class="tab" data-tab="history" role="tab" aria-selected="false">History</button>
+      <button class="tab" data-tab="settings" role="tab" aria-selected="false">Settings</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- TODAY -->
+    <section class="panel active" id="today" role="tabpanel">
+      <div class="date-row">
+        <h1 id="today-date">—</h1>
+        <span class="streak-pill" id="streak-pill">🔥 0 day streak</span>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h2>Habits</h2>
+          <button class="link-btn" id="add-habit-btn">+ Add habit</button>
+        </div>
+        <ul class="habit-list" id="habit-list"></ul>
+        <p class="empty-note" id="habit-empty" hidden>No habits yet. Add your first one above.</p>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h2>Workout</h2>
+          <button class="link-btn" id="add-exercise-btn">+ Add exercise</button>
+        </div>
+        <div class="workout-table" id="workout-table">
+          <div class="workout-row workout-row-head">
+            <span>Exercise</span>
+            <span>Sets</span>
+            <span>Reps</span>
+            <span>kg</span>
+            <span></span>
+          </div>
+        </div>
+        <p class="empty-note" id="exercise-empty" hidden>No exercises logged yet. Add one above.</p>
+      </div>
+
+      <!-- Floating save button -->
+      <button class="fab-save" id="fab-save" aria-label="Save data to file">
+        💾 Save
+      </button>
+      <p class="fab-hint" id="fab-hint"></p>
+    </section>
+
+    <!-- ROUTINE -->
+    <section class="panel" id="routine" role="tabpanel">
+      <div class="history-head">
+        <h1>Routine</h1>
+        <p class="subtle">Your weekly plan. Log a day to copy its exercises into Today.</p>
+      </div>
+
+      <div class="routine-list" id="routine-list">
+        <!-- routine day cards injected here -->
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="panel" id="history" role="tabpanel">
+      <div class="history-head">
+        <h1>History</h1>
+        <p class="subtle">Each square is a day. Darker means more habits completed.</p>
+      </div>
+
+      <div class="grid-wrap">
+        <div class="streak-grid" id="streak-grid"></div>
+        <div class="grid-legend">
+          <span>Less</span>
+          <span class="legend-swatch l0"></span>
+          <span class="legend-swatch l1"></span>
+          <span class="legend-swatch l2"></span>
+          <span class="legend-swatch l3"></span>
+          <span class="legend-swatch l4"></span>
+          <span>More</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>Workout log</h2>
+        <div class="history-list" id="workout-history">
+          <!-- past workout days injected here -->
+        </div>
+        <p class="empty-note" id="workout-history-empty" hidden>No workouts logged yet.</p>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="panel" id="settings" role="tabpanel">
+      <h1>Settings</h1>
+
+      <div class="block">
+        <h2>Your data file</h2>
+        <p class="subtle">
+          All your data lives in <strong>routine-data.json</strong> on your phone.
+          Use the 💾 Save button on the Today tab after every session.
+          To restore on a new device or after clearing your browser, load the file here.
+        </p>
+        <div class="settings-actions">
+          <button class="btn btn-primary" id="export-btn">💾 Save data file</button>
+          <button class="btn" id="import-btn">📂 Load data file</button>
+          <input type="file" id="import-file" accept="application/json" hidden>
+        </div>
+        <p class="hint" id="settings-status"></p>
+      </div>
+
+      <div class="block">
+        <h2>Reset</h2>
+        <p class="subtle">Remove all habits, exercises, and history from this session.</p>
+        <button class="btn btn-danger" id="reset-btn">Clear all data</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Add Habit Dialog -->
+<dialog id="habit-dialog">
+  <form id="habit-form">
+    <h3>New habit</h3>
+    <label for="habit-name">Name</label>
+    <input type="text" id="habit-name" placeholder="e.g. Drink water, Read 10 pages" required maxlength="60">
+    <div class="dialog-actions">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="submit" class="btn btn-primary">Add habit</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Add Exercise Dialog -->
+<dialog id="exercise-dialog">
+  <form id="exercise-form">
+    <h3>New exercise</h3>
+    <label for="exercise-name">Exercise</label>
+    <input type="text" id="exercise-name" placeholder="e.g. Bench press" required maxlength="60">
+    <div class="form-row">
+      <div>
+        <label for="exercise-sets">Sets</label>
+        <input type="number" id="exercise-sets" min="0" max="99" value="3">
+      </div>
+      <div>
+        <label for="exercise-reps">Reps</label>
+        <input type="number" id="exercise-reps" min="0" max="999" value="10">
+      </div>
+      <div>
+        <label for="exercise-weight">Weight (kg)</label>
+        <input type="number" id="exercise-weight" min="0" max="999" step="0.5" value="0">
+      </div>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="submit" class="btn btn-primary">Add exercise</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js").catch((err) => {
+        console.warn("Service worker registration failed:", err);
+      });
+    });
+  }
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>
